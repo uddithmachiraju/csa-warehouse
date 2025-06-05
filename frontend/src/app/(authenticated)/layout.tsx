@@ -29,7 +29,7 @@ export default function DashboardLayout({
   const pathname = usePathname()
   const handleLogout = async () => {
     await signOut({
-      callbackUrl: '/landingpage',
+      callbackUrl: '/',
       redirect: true,
     })
   }

@@ -1,7 +1,7 @@
 'use client'
 import { FeatureCard } from '@/components/feature-card'
 import { ThemeToggle } from '@/components/theme-toggle'
-import { LoginDialog } from '../../components/logindialogue'
+import { LoginDialog } from '@/components/logindialogue'
 
 export default function LandingPage() {
   return (
