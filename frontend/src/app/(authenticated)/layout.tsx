@@ -1,7 +1,7 @@
 'use client'
 import { AppSidebar } from '@/components/app-sidebar'
 import { ThemeToggle } from '@/components/theme-toggle'
-import { useSession } from 'next-auth/react'
+// import { useSession } from 'next-auth/react'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -25,7 +25,7 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
-  const { data: session } = useSession()
+  // const { data: session } = useSession()
   const pathname = usePathname()
   const handleLogout = async () => {
     await signOut({
@@ -67,7 +67,7 @@ export default function DashboardLayout({
           <div className="flex h-16 items-center px-4 space-x-4">
             <ThemeToggle />
             <Button variant="ghost">
-              {session?.user?.role || 'Loading...'}
+              {/* {session?.user?.role || 'Loading...'} */}
             </Button>
             <Button onClick={handleLogout}>Logout</Button>
           </div>
