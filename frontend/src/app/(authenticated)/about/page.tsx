@@ -1,10 +1,10 @@
 import { ContentLayout } from '@/components/admin-panel/content-layout'
 
-export default function Settings() {
+export default function About() {
   return (
-    <ContentLayout title="Settings">
+    <ContentLayout title="About">
       <div className="p-6">
-        <h1>Settings</h1>
+        <h1>About</h1>
       </div>
     </ContentLayout>
   )
