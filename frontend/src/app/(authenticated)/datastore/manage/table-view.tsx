@@ -1,3 +1,5 @@
+'use client'
+
 import {
   Table,
   TableBody,
@@ -6,7 +8,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { TableViewProps } from '@/lib/types'
+import { EarthquakeData } from './page'
+
+interface TableViewProps {
+  data: EarthquakeData[]
+}
 
 export function TableView({ data }: TableViewProps) {
   return (

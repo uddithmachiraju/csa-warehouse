@@ -1,3 +1,5 @@
+'use client'
+
 import {
   Card,
   CardContent,
@@ -11,7 +13,11 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart'
-import { GraphViewProps } from '@/lib/types'
+import { EarthquakeData } from './page'
+
+interface GraphViewProps {
+  data: EarthquakeData[]
+}
 
 const chartConfig = {
   magnitude: {

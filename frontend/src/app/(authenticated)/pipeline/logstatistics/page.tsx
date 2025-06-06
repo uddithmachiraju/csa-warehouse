@@ -10,6 +10,7 @@ import {
 import { Search } from 'lucide-react'
 import { DataTable } from './data-table'
 import { columns } from './columns'
+import { ContentLayout } from '@/components/admin-panel/content-layout'
 
 const data = [
   {
@@ -24,41 +25,42 @@ const data = [
 
 export default function LogStatistics() {
   return (
-    <main className="h-full flex flex-col space-y-4 p-4">
-      <div className="relative p-4 shrink-0">
-        <Search className="absolute left-7 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          type="search"
-          placeholder="Search dataset"
-          className="pl-10 w-full"
-        />
-      </div>
-      <h1 className="text-3xl font-bold mb-8">Log Statistics</h1>
-
-      <div className="grid gap-6 md:grid-cols-2 mb-6">
-        <div>
-          <label className="text-sm font-medium mb-2 block">
-            Choose Command
-          </label>
-          <Select defaultValue="pipeline2">
-            <SelectTrigger>
-              <SelectValue placeholder="Select pipeline" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="pipeline1">Pipeline 1</SelectItem>
-              <SelectItem value="pipeline2">Pipeline 2</SelectItem>
-              <SelectItem value="pipeline3">Pipeline 3</SelectItem>
-            </SelectContent>
-          </Select>
+    <ContentLayout title="Log Statistics">
+      <div className="h-full flex flex-col space-y-4 p-4">
+        <div className="relative p-4 shrink-0">
+          <Search className="absolute left-7 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            type="search"
+            placeholder="Search dataset"
+            className="pl-10 w-full"
+          />
         </div>
 
-        <div>
-          <label className="text-sm font-medium mb-2 block">Date Range</label>
-          <DatePickerWithRange />
-        </div>
-      </div>
+        <div className="grid gap-6 md:grid-cols-2 mb-6">
+          <div>
+            <label className="text-sm font-medium mb-2 block">
+              Choose Command
+            </label>
+            <Select defaultValue="pipeline2">
+              <SelectTrigger>
+                <SelectValue placeholder="Select pipeline" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="pipeline1">Pipeline 1</SelectItem>
+                <SelectItem value="pipeline2">Pipeline 2</SelectItem>
+                <SelectItem value="pipeline3">Pipeline 3</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-      <DataTable columns={columns} data={data} />
-    </main>
+          <div>
+            <label className="text-sm font-medium mb-2 block">Date Range</label>
+            <DatePickerWithRange />
+          </div>
+        </div>
+
+        <DataTable columns={columns} data={data} />
+      </div>
+    </ContentLayout>
   )
 }
