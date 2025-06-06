@@ -6,10 +6,14 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { MapViewProps } from '@/lib/types'
 import dynamic from 'next/dynamic'
 import { useEffect, useState } from 'react'
 import 'leaflet/dist/leaflet.css'
+import { EarthquakeData } from './page'
+
+interface MapViewProps {
+  data: EarthquakeData[]
+}
 
 // Dynamically import Leaflet components with no SSR
 const MapContainer = dynamic(
