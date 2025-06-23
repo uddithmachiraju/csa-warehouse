@@ -1,0 +1,51 @@
+version: "3.8"
+
+volumes:
+  agriworks-mongodb-data:
+  agriworks_minio_data_container:
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      # Ensure that the variables in .env match the same variables in devcontainer.json
+      - .env
+
+    volumes:
+      - ../..:/workspaces:cached
+
+    # Overrides default command so things don't shut down after the process ends.
+    command: sleep infinity
+
+    # Runs app on the same network as the database container, allows "forwardPorts" in devcontainer.json function.
+    network_mode: host
+
+    # Use "forwardPorts" in **devcontainer.json** to forward an app port locally.
+    # (Adding the "ports" property to this file will not forward from a Codespace.)
+
+
+    # Add "forwardPorts": ["5432"] to **devcontainer.json** to forward PostgreSQL locally.
+    # (Adding the "ports" property to this file will not forward from a Codespace.)
+
+  mongodb:
+    image: mongo:latest
+    volumes:
+      - agriworks-mongodb-data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    restart: unless-stopped
+    network_mode: host
+
+  s3local:
+    image: minio/minio
+    volumes:
+      - agriworks_minio_data_container:/data/s3
+    environment:
+      MINIO_ROOT_USER: ${MINIO_USERNAME}
+      MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD}
+    command: server /data/s3 --console-address ":9001"
+    restart: unless-stopped
+    network_mode: host
