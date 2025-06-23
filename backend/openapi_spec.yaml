@@ -1,0 +1,320 @@
+openapi: 3.0.4
+info:
+  title: Agriworks - OpenAPI Spec
+  version: 0.0.1
+servers:
+  - url: http://localhost:8080/api/v1
+tags:
+  - name: dataset
+    description: Operations on datasets
+  - name: user
+    description: Operations on users
+paths:
+  /dataset/new:
+    post:
+      tags:
+        - dataset
+      summary: Add a new dataset.
+      description: Add a new dataset to the store.
+      operationId: addDataset
+      requestBody:
+        description: Create a new dataset
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Dataset'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dataset'
+        '400':
+          description: Invalid input
+        '422':
+          description: Validation exception
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /dataset/findByTags:
+    get:
+      tags:
+        - dataset
+      summary: Finds datasets by tags.
+      description: Multiple tags can be provided with comma separated strings.
+      operationId: findDatasetsByTags
+      parameters:
+        - name: tags
+          in: query
+          description: Tags to filter by
+          required: false
+          explode: true
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Dataset'
+        '400':
+          description: Invalid tag value
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /dataset/{datasetId}:
+    get:
+      tags:
+        - dataset
+      summary: Find dataset by ID.
+      description: Returns a single dataset.
+      operationId: getDatasetById
+      parameters:
+        - name: datasetId
+          in: path
+          description: ID of dataset to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dataset'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Dataset not found
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      tags:
+        - dataset
+      summary: Deletes a dataset.
+      description: Delete a dataset.
+      operationId: deleteDataset
+      parameters:
+        - name: datasetId
+          in: path
+          description: Dataset id to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Dataset deleted
+        '400':
+          description: Invalid dataset value
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /user:
+    post:
+      tags:
+        - user
+      summary: Create user.
+      description: This can only be done by the logged in user.
+      operationId: createUser
+      requestBody:
+        description: Created user object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /user/{username}:
+    get:
+      tags:
+        - user
+      summary: Get user by user name.
+      description: Get user detail based on username.
+      operationId: getUserByName
+      parameters:
+        - name: username
+          in: path
+          description: The name that needs to be fetched.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid username supplied
+        '404':
+          description: User not found
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  schemas:
+    Tag:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+      xml:
+        name: tag
+    Dataset:
+      required:
+        - id
+        - title
+        - uploader
+        - uploadDate
+        - isSpatial
+        - isTemporal
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+          example: Soil Moisture Evolution in India
+        description:
+          type: string
+          description: Text explaining what the dataset is about
+        uploader:
+          $ref: '#/components/schemas/User'
+        uploadDate:
+          type: string
+          format: date-time
+          description: The creation date and time in ISO 8601 format
+          example: "2025-06-30T08:30:00Z"
+        tags:
+          type: array
+          xml:
+            wrapped: true
+          items:
+            $ref: '#/components/schemas/Tag'
+        isSpatial:
+          type: boolean
+          description: Whether the dataset has any geospatial identifiers
+        spatialHierarchy:
+          oneOf:
+            - $ref: '#/components/schemas/LocationLatLong'
+            - $ref: '#/components/schemas/LocationHierarchy'
+        isTemporal:
+          type: boolean
+          description: Whether the dataset has any temporal identifiers
+        temporalHierarchy:
+          oneOf:
+            - $ref: '#components/schemas/TimeYearly'
+            - $ref: '#components/schemas/TimeMonthly'
+      xml:
+        name: dataset
+    LocationLatLong:
+      type: object
+      required:
+        - lat
+        - long
+      properties:
+        lat:
+          type: number
+          format: float
+          description: Latitude
+        long:
+          type: number
+          format: float
+          description: Longitude
+    LocationHierarchy:
+      type: object
+      properties:
+        country:
+          type: string
+        state:
+          type: string
+        district:
+          type: string
+        village:
+          type: string
+    TimeYearly:
+      type: 
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        username:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+          example: name@email.com
+        organisation:
+          type: string
+      xml:
+        name: user
+    ApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        type:
+          type: string
+        message:
+          type: string
+      xml:
+        name: '##default'
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+      required:
+        - code
+        - message
