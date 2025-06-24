@@ -8,7 +8,7 @@ from crud import (
 
 app = FastAPI()
 
-# ---- User Routes ----
+# User Routes
 
 @app.post("/users/", response_model=ApiResponse)
 def create_user_endpoint(user: User):
@@ -36,7 +36,8 @@ def delete_user_endpoint(user_id: UUID):
         raise HTTPException(status_code=404, detail="User not found")
     return ApiResponse(code=200, type="success", message="User deleted")
 
-# ---- Dataset Routes ----
+
+# Dataset Routes
 
 @app.post("/datasets/", response_model=ApiResponse)
 def create_dataset_endpoint(dataset: Dataset):

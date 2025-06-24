@@ -1,4 +1,3 @@
-from bson import ObjectId
 from uuid import UUID
 from models import User, Dataset
 from database import users_collection, datasets_collection
@@ -18,7 +17,7 @@ def dataset_to_dict(dataset: Dataset):
     return ds_dict
 
 
-# --- User CRUD ---
+# User Operations
 def create_user(user: User):
     users_collection.insert_one(user_to_dict(user))
 
@@ -38,7 +37,7 @@ def delete_user(user_id: UUID):
     return result.deleted_count
 
 
-# --- Dataset CRUD ---
+# Dataset Operations
 def create_dataset(dataset: Dataset):
     datasets_collection.insert_one(dataset_to_dict(dataset))
 
