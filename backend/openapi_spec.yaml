@@ -244,10 +244,6 @@ components:
         isTemporal:
           type: boolean
           description: Whether the dataset has any temporal identifiers
-        temporalHierarchy:
-          oneOf:
-            - $ref: '#components/schemas/TimeYearly'
-            - $ref: '#components/schemas/TimeMonthly'
       xml:
         name: dataset
     LocationLatLong:
@@ -256,8 +252,6 @@ components:
     LocationHierarchy:
       type: boolean
       description: Whether the dataset has heirarchical location specifics.
-    TimeYearly:
-      type: 
     User:
       type: object
       properties:
