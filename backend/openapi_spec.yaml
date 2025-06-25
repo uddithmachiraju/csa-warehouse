@@ -237,27 +237,11 @@ components:
         isSpatial:
           type: boolean
           description: Whether the dataset has any geospatial identifiers
-        spatialHierarchy:
-          oneOf:
-            - $ref: '#/components/schemas/LocationLatLong'
-            - $ref: '#/components/schemas/LocationHierarchy'
         isTemporal:
           type: boolean
           description: Whether the dataset has any temporal identifiers
-        temporalHierarchy:
-          oneOf:
-            - $ref: '#components/schemas/TimeYearly'
-            - $ref: '#components/schemas/TimeMonthly'
       xml:
         name: dataset
-    LocationLatLong:
-      type: boolean
-      description: Whether the dataset has coordinate spatial identifiers.
-    LocationHierarchy:
-      type: boolean
-      description: Whether the dataset has heirarchical location specifics.
-    TimeYearly:
-      type: 
     User:
       type: object
       properties:
