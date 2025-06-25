@@ -45,14 +45,14 @@ def create_dataset_endpoint(dataset: Dataset):
     return ApiResponse(code=201, type="success", message="Dataset created")
 
 @app.get("/datasets/{dataset_id}")
-def get_dataset_endpoint(dataset_id: UUID):
+def get_dataset_endpoint(dataset_id: int):
     ds = get_dataset(dataset_id)
     if not ds:
         raise HTTPException(status_code=404, detail="Dataset not found")
     return ds
 
 @app.delete("/datasets/{dataset_id}", response_model=ApiResponse)
-def delete_dataset_endpoint(dataset_id: UUID):
+def delete_dataset_endpoint(dataset_id: int):
     deleted = delete_dataset(dataset_id)
     if deleted == 0:
         raise HTTPException(status_code=404, detail="Dataset not found")
