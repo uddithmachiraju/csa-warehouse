@@ -213,8 +213,7 @@ components:
       type: object
       properties:
         id:
-          type: string
-          format: uuid
+          type: int
         title:
           type: string
           example: Soil Moisture Evolution in India
