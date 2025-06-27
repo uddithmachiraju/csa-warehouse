@@ -31,7 +31,7 @@ class Dataset(BaseModel):
     """
     Dataset object.
     """
-    id: UUID = Field(..., description="Unique dataset ID (UUID)")
+    id: Optional[int] = Field(..., description="Unique dataset ID (int)")
     title: str = Field(..., description="Title of the dataset", example="Soil Moisture Evolution in India")
     description: Optional[str] = Field(None, description="Text explaining what the dataset is about")
     uploader: User = Field(..., description="User who uploaded the dataset")
