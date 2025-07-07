@@ -7,6 +7,7 @@ from crud import (
 )
 from minio_service import generate_presigned_url
 from cloud_functions.rpc_server import introspection, custprocess
+from cloud_functions.api.executor import submit_task, get_task_status
 
 app = FastAPI()
 
@@ -65,7 +66,7 @@ def get_presigned_url(filename: str = Query(...)):
     url = generate_presigned_url(filename)
     return {"upload_url": url} 
 
-# 
+# Test Endpoint that don't run on a thread
 @app.post("/invoke-function")
 async def invoke_function(request: CloudFunctionRequest):
     try:
@@ -79,5 +80,28 @@ async def invoke_function(request: CloudFunctionRequest):
         if result is None:
             raise HTTPException(status_code = 404, detail = "Function not found or failed to execute")
         return {"status": "success", "data": result} 
+    except Exception as e:
+        raise HTTPException(status_code = 500, detail = str(e))
+    
+@app.post("/submit-task") 
+async def submit_task_endpoint(request: CloudFunctionRequest):
+    try:
+        exec_id = submit_task(
+            func_name = request.func_name,
+            param_values = request.param_values,
+            param_types = request.param_types,
+            return_type = request.return_type
+        )
+        return {"status": "running", "exec_id": exec_id}
+    except Exception as e:
+        raise HTTPException(status_code = 500, detail = str(e))
+    
+@app.get("/task-status/{exec_id}") 
+def get_task_status_endpoint(exec_id: str):
+    try:
+        status = get_task_status(exec_id)
+        if status["status"] == "not found":
+            raise HTTPException(status_code = 404, detail = "Task not found")
+        return status
     except Exception as e:
         raise HTTPException(status_code = 500, detail = str(e))
