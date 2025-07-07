@@ -4,7 +4,7 @@ from database import store_file_metadata, MONGO_URI
 
 def get_presigned_url(filename: str):
     response = requests.get("http://localhost:8000/generatePresignedURL", params={"filename": filename})
-    return response.json()["upload_url"]
+    return response.json()["upload_url"] 
 
 def upload_file_to_presigned_url(file_path: str):
     filename = file_path.split("/")[-1]

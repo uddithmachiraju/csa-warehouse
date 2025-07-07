@@ -9,7 +9,7 @@ import io
 load_dotenv()
 
 # ------------------ MongoDB Setup ------------------
-MONGO_URI = os.getenv("MONGO_URI", "mongodb://admin:password@localhost:27017/fastapi_db?authSource=admin")
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://admin:password@localhost:27017/fastapi_db?authSource=admin") 
 client = MongoClient(MONGO_URI)
 db = client["fastapi_db"]
 

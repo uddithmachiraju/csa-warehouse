@@ -18,6 +18,9 @@ minio_client = Minio(
     secure = False 
 )
 
+if not minio_client.bucket_exists(MINIO_BUCKET_NAME):
+    minio_client.make_bucket(MINIO_BUCKET_NAME)
+
 # add s3 policy to allow public access
 minio_client.set_bucket_policy(
     MINIO_BUCKET_NAME,
@@ -39,9 +42,6 @@ minio_client.set_bucket_policy(
 # ------------------ MinIO Service Functions -------------------
 # Generate a presigned URL for uploading files to MinIO
 def generate_presigned_url(filename: str, expiry_seconds: int = 3600):
-    if not minio_client.bucket_exists(MINIO_BUCKET_NAME):
-        minio_client.make_bucket(MINIO_BUCKET_NAME)
-
     url = minio_client.presigned_put_object(
         MINIO_BUCKET_NAME, 
         filename, 

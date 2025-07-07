@@ -1,11 +1,12 @@
 from fastapi import FastAPI, HTTPException, Query
 from uuid import UUID
-from models import User, Dataset, ApiResponse
+from models import User, Dataset, ApiResponse, CloudFunctionRequest
 from crud import (
     create_user, get_user, update_user, delete_user,
     create_dataset, get_dataset, delete_dataset
 )
 from minio_service import generate_presigned_url
+from cloud_functions.rpc_server import introspection, custprocess
 
 app = FastAPI()
 
@@ -63,3 +64,20 @@ def delete_dataset_endpoint(dataset_id: int):
 def get_presigned_url(filename: str = Query(...)):
     url = generate_presigned_url(filename)
     return {"upload_url": url} 
+
+# 
+@app.post("/invoke-function")
+async def invoke_function(request: CloudFunctionRequest):
+    try:
+        result = introspection.introspect_run_with_args(
+            module = custprocess,
+            func_name = request.func_name,
+            param_values = request.param_values,
+            param_types = request.param_types,
+            retrun_type = request.return_type
+        ) 
+        if result is None:
+            raise HTTPException(status_code = 404, detail = "Function not found or failed to execute")
+        return {"status": "success", "data": result} 
+    except Exception as e:
+        raise HTTPException(status_code = 500, detail = str(e))
