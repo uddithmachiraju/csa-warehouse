@@ -1,19 +1,26 @@
-from fastapi import FastAPI, HTTPException, Query
 from uuid import UUID
-from db.models import User, Dataset, ApiResponse, CloudFunctionRequest
-from db.crud import (
+from io import BytesIO
+from base64 import b64decode
+from fastapi import FastAPI, HTTPException, Query, UploadFile, File, Form
+from app.schemas.models import User, Dataset, ApiResponse, CloudFunctionRequest, DatasetResponse
+from app.db.crud import (
     create_user, get_user, update_user, delete_user,
     create_dataset, get_dataset, delete_dataset
 )
-from services.minio_service import generate_presigned_url
+from app.utils.file_utils import * 
+from app.services.storage.minio_service import get_minio_service
 from services.cloud_functions.server import introspection, custprocess
 from services.cloud_functions.executor import submit_task, get_task_status
 from app.warehouse.task_manager import TaskManager 
+from app.services.cloud_functions.ETL_function import clean_csv 
+from app.services.storage.minio_service import MinioStorageService
+from app.api.endpoints.pipeline import run_router
 
 # Register the tasks 
 import app.warehouse.register_tasks 
 
 app = FastAPI()
+app.include_router(run_router) 
 
 # Initialize the Task Manager
 task_manager = TaskManager()
@@ -70,7 +77,8 @@ def delete_dataset_endpoint(dataset_id: int):
 
 @app.get("/generatePresignedURL")
 def get_presigned_url(filename: str = Query(...)):
-    url = generate_presigned_url(filename)
+    minio_service = get_minio_service() 
+    url = minio_service.generate_presigned_url(filename)
     return {"upload_url": url} 
 
 # Test Endpoint that don't run on a thread
