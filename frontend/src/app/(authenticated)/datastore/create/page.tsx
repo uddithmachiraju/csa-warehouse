@@ -21,7 +21,6 @@ import { FileInput, FileUploader, FileUploaderContent } from '@/components/file-
 import FileDownloadButton from '@/components/file-upload/FileDownloadButton'
 import { TagInput } from '@/app/(authenticated)/datastore/create/tag-input'
 import { DatasetConfigurationDialog, DatasetConfigFormData } from '@/app/(authenticated)/datastore/create/dataset-cofig-dialogue'
-import { addDataset } from '@/lib/hey-api/client/sdk.gen'
 import { useToast } from '@/components/hooks/use-toast'
 import { useSession } from 'next-auth/react'
 
@@ -148,35 +147,35 @@ export default function Create() {
       console.log('Dataset payload:', datasetPayload);
 
       // Make the API call
-      const response = await addDataset({
-        body: datasetPayload
-      });
-      console.log('Response:', response);
+      // const response = await addDataset({
+      //   body: datasetPayload
+      // });
+      // console.log('Response:', response);
 
-      if (response.data) {
-        toast({
-          title: "Success!",
-          description: "Dataset created successfully.",
-        });
+      // if (response.data) {
+      //   toast({
+      //     title: "Success!",
+      //     description: "Dataset created successfully.",
+      //   });
         
-        // Reset the form
-        form.reset({
-          name: "",
-          description: "",
-          permission: "public",
-          tags: [],
-        });
-        setFiles(null);
-        setFileUrls([]);
-        setIsConfigDialogOpen(false);
-      } else {
-        console.error('API Error:', response.error);
-        toast({
-          title: "Error",
-          description: "Failed to create dataset. Please try again.",
-          variant: "destructive",
-        });
-      }
+      //   // Reset the form
+      //   form.reset({
+      //     name: "",
+      //     description: "",
+      //     permission: "public",
+      //     tags: [],
+      //   });
+      //   setFiles(null);
+      //   setFileUrls([]);
+      //   setIsConfigDialogOpen(false);
+      // } else {
+      //   console.error('API Error:', response.error);
+      //   toast({
+      //     title: "Error",
+      //     description: "Failed to create dataset. Please try again.",
+      //     variant: "destructive",
+      //   });
+      // }
     } catch (error) {
       console.error('Error creating dataset:', error);
       toast({
