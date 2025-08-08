@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useSidebar } from "@/components/hooks/use-sidebar";
 import { useStore } from "@/components/hooks/use-store";
+import { LayoutGrid } from "lucide-react";
 
 export function CustomSidebar() {
   const sidebar = useStore(useSidebar, (x) => x);
@@ -31,7 +32,7 @@ export function CustomSidebar() {
           )}
           variant="ghost"
         >
-          {/* <Anchor className="w-6 h-6 mr-1" />
+          <LayoutGrid className="w-6 h-6 mr-1" />
             <h1
               className={cn(
                 "font-bold text-lg whitespace-nowrap transition-[transform,opacity,display] ease-in-out duration-300",
@@ -40,8 +41,8 @@ export function CustomSidebar() {
                   : "translate-x-0 opacity-100"
               )}
             >
-              GFGT
-            </h1> */}
+              CSA warehouse
+            </h1>
           {/* <Image src="/logo.webp" alt="logo" width={100} height={100} /> */}
         </Button>
         <Menu isOpen={getOpenState()} />
