@@ -1,6 +1,6 @@
 from uuid import UUID
-from models import User, Dataset
-from database import users_collection, datasets_collection
+from ..schemas.models import User, Dataset
+from .database import users_collection, datasets_collection
 
 
 def user_to_dict(user: User):
@@ -10,7 +10,7 @@ def user_to_dict(user: User):
 
 
 def dataset_to_dict(dataset: Dataset):
-    ds_dict = dataset.model_dump()
+    ds_dict = dataset 
     ds_dict["_id"] = str(ds_dict.pop("id"))
     ds_dict["uploader"] = user_to_dict(ds_dict["uploader"])
     ds_dict["uploadDate"] = ds_dict["uploadDate"].isoformat()
@@ -39,7 +39,8 @@ def delete_user(user_id: UUID):
 
 # Dataset Operations
 def create_dataset(dataset: Dataset):
-    datasets_collection.insert_one(dataset_to_dict(dataset))
+    result = datasets_collection.insert_one(dataset_to_dict(dataset))
+    return str(result.inserted_id)
 
 
 def get_dataset(dataset_id: UUID):

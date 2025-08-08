@@ -45,6 +45,10 @@ class Dataset(BaseModel):
     isTemporal: bool = Field(..., description="Whether the dataset has any temporal identifiers")
 
 
+class DatasetResponse(Dataset):
+    document_id: str
+    file_location: str
+
 class ApiResponse(BaseModel):
     """
     Generic API response.
@@ -64,5 +68,9 @@ class Error(BaseModel):
 class CloudFunctionRequest(BaseModel):
     func_name: str
     param_values: List[Any]
-    param_types: List[str] 
-    return_type: str 
+    # param_types: List[str] 
+    # return_type: str 
+
+class RunPipeline(BaseModel):
+    dataset_id: str 
+    user_id: Optional[str] = None
