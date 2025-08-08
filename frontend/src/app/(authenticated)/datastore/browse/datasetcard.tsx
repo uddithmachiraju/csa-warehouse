@@ -1,41 +1,46 @@
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardTitle } from '@/components/ui/card'
-import Image from 'next/image'
+import { formatDate } from '@/lib/utils'
+import { Mail } from 'lucide-react'
 
 export function DatasetCard({
   title,
-  imageSrc,
+  description,
+  uploaderName,
+  uploaderEmail,
+  uploadDate,
 }: {
   title: string
-  imageSrc: string
+  description?: string
+  uploaderName: string
+  uploaderEmail?: string
+  uploadDate: string
 }) {
   return (
-    <Card className="overflow-hidden">
-      <CardContent className="p-0">
-        <div className="flex flex-col md:flex-row">
-          <div className="w-full md:w-1/3">
-            <Image
-              src={imageSrc}
-              alt="Image"
-              width={300}
-              height={200}
-              className="h-full w-full object-cover bg-muted"
-            />
+    <Card className="bg-background">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-lg font-semibold truncate">
+          {title}
+        </CardTitle>
+        <CardDescription className="text-sm text-muted-foreground line-clamp-2">{description}</CardDescription>
+      </CardHeader>
+      <CardContent className="pt-0">
+        <div className="flex items-center justify-between pt-4 border-t border-border/20">
+          <div className="flex flex-col space-y-1">
+            <p className="text-sm font-semibold text-foreground">{uploaderName}</p>
+            {uploaderEmail && (
+              <p className="text-xs text-muted-foreground flex items-center">
+                <Mail className="w-3 h-3 mr-1.5" />
+                {uploaderEmail}
+              </p>
+            )}
           </div>
-          <div className="flex flex-col justify-between p-6 w-full md:w-2/3">
-            <div>
-              <CardTitle className="mb-4">{title}</CardTitle>
-              <ul className="space-y-2 list-disc pl-5">
-                <li>High level details</li>
-                <li>ipsum dolor sit amet</li>
-                <li>ipsum dolor sit amet</li>
-              </ul>
-            </div>
-            <div className="mt-4">
-              <Button className="w-full">Open</Button>
-            </div>
+          <div className="text-right">
+            <p className="text-xs text-muted-foreground">Uploaded</p>
+            <p className="text-sm font-medium text-foreground">{formatDate(uploadDate)}</p>
           </div>
         </div>
+        <Button className="w-full mt-4">Open</Button>
       </CardContent>
     </Card>
   )
