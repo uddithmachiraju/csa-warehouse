@@ -18,7 +18,7 @@ from app.services.storage.minio_service import get_minio_service
 # from app.services.storage.minio_service import MinioStorageService
 from app.api.endpoints.pipeline import run_router
 from app.api.endpoints.browse import browser_router
-
+from app.api.endpoints.manage import manage_router
 # Register the tasks
 # import app.warehouse.register_tasks
 
@@ -35,7 +35,7 @@ app.add_middleware(
 
 app.include_router(run_router)
 app.include_router(browser_router)
-
+app.include_router(manage_router)
 # Initialize the Task Manager
 # task_manager = TaskManager()
 
