@@ -4,7 +4,7 @@ import { ContentLayout } from "@/components/admin-panel/content-layout"
 import { DataTable } from "@/components/TableView/data-table"
 import { getDatasetByIdEndpointGetDatasetByIdPost } from "@/lib/hey-api/client/sdk.gen"
 import { GetDatasetByIdRequest, GetDatasetByIdResponse } from "@/lib/hey-api/client/types.gen"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { ColumnDef } from "@tanstack/react-table"
 import { Badge } from "@/components/ui/badge"
 import { Loader2, AlertCircle } from "lucide-react"
@@ -22,7 +22,7 @@ export default function DatasetDetails() {
     const [pageSize, setPageSize] = useState(10)
     const [totalRows, setTotalRows] = useState(0)
 
-    const fetchDatasetRows = async (page: number, size: number) => {
+    const fetchDatasetRows = useCallback(async (page: number, size: number) => {
         try {
             setLoading(true)
             setError(null)
@@ -51,13 +51,13 @@ export default function DatasetDetails() {
         } finally {
             setLoading(false)
         }
-    }
+    }, [key])
 
     useEffect(() => {
         if (key) {
             fetchDatasetRows(currentPage, pageSize)
         }
-    }, [key, currentPage, pageSize])
+    }, [key, currentPage, pageSize, fetchDatasetRows])
 
     // Handle page size change
     const handlePageSizeChange = (newPageSize: number) => {
