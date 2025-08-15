@@ -1,8 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { formatDate } from '@/lib/utils'
-import { Mail, User } from 'lucide-react'
+import { Mail, User, Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 
 export function DatasetCard({
   title,
@@ -19,9 +20,17 @@ export function DatasetCard({
   ingestedAt: string
 }) {
   const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false)
 
-  const handleView = () => {
-    router.push(`/datastore/browse/${encodeURIComponent(title)}`)
+  const handleView = async () => {
+    setIsLoading(true)
+    try {
+      await router.push(`/datastore/browse/${encodeURIComponent(title)}`)
+    } catch (error) {
+      console.error('Navigation error:', error)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -62,8 +71,16 @@ export function DatasetCard({
           <Button 
             className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
             onClick={handleView}
+            disabled={isLoading}
           >
-            View
+            {isLoading ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Loading...
+              </>
+            ) : (
+              'View'
+            )}
           </Button>
         </div>
       </CardContent>
