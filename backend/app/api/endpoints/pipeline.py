@@ -9,17 +9,17 @@ run_router = APIRouter()
 
 @run_router.post("/run", response_model=RunPipelineResponse)
 async def run_pipeline(request: RunPipelineRequest):
-    dataset = pull_dataset(request.dataset_id)
+    dataset = pull_dataset(request.pipeline_id)
     dataset_json = dataset.to_dict(orient="records")
     result = store_to_mongodb(
-        request.dataset_id, request.user_id, request.username, dataset_json)
+        request.pipeline_id, request.username, request.user_email, dataset_json)
     return RunPipelineResponse(status="completed")
 
 
 @run_router.post("/run-pipeline", response_model=RunPipelineResponse)
 def run_pipeline(request: RunPipelineRequest):
     result, exec_id = submit_task(
-        request.dataset_id, request.user_id, request.username)
+        request.pipeline_id, request.username, request.user_email)
 
     # Map "not found" to "error" for frontend compatibility
     status = result.get("Task Status", "running")
@@ -31,7 +31,7 @@ def run_pipeline(request: RunPipelineRequest):
 
 @run_router.post("/pipeline-status", response_model=PipelineStatusResponse)
 def get_pipeline_status(request: PipelineStatusRequest):
-    result = get_task_status(request.dataset_id, request.user_id)
+    result = get_task_status(request.pipeline_id, request.user_email)
     task_status = result.get("Task Status", "not found")
 
     # Map "not found" to "error" for frontend compatibility
