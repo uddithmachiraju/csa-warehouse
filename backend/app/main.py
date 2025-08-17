@@ -4,13 +4,14 @@ from base64 import b64decode
 from fastapi import FastAPI, HTTPException, Query, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 # CloudFunctionRequest, DatasetResponse
-from app.schemas.models import User, Dataset, ApiResponse
+from app.schemas.models import User, Dataset, ApiResponse, ExtractCsvDataResponse
 from app.db.crud import (
     create_user, get_user, update_user, delete_user,
     create_dataset, get_dataset, delete_dataset
 )
 from app.utils.file_utils import *
 from app.services.storage.minio_service import get_minio_service
+from app.utils.csv_processor import extract_csv_data_from_minio
 # from services.cloud_functions.server import introspection, custprocess
 # from services.cloud_functions.executor import submit_task, get_task_status
 # from app.warehouse.task_manager import TaskManager
@@ -19,6 +20,8 @@ from app.services.storage.minio_service import get_minio_service
 from app.api.endpoints.pipeline import run_router
 from app.api.endpoints.browse import browser_router
 from app.api.endpoints.manage import manage_router
+from app.api.endpoints.dataset_info import dataset_info_router
+from app.api.endpoints.files import files_router
 # Register the tasks
 # import app.warehouse.register_tasks
 
@@ -36,6 +39,8 @@ app.add_middleware(
 app.include_router(run_router)
 app.include_router(browser_router)
 app.include_router(manage_router)
+app.include_router(dataset_info_router)
+app.include_router(files_router)
 # Initialize the Task Manager
 # task_manager = TaskManager()
 
@@ -102,6 +107,64 @@ def get_presigned_url(filename: str = Query(...)):
     minio_service = get_minio_service()
     url = minio_service.generate_presigned_url(filename)
     return {"upload_url": url}
+
+
+@app.post("/extract-csv-data", response_model=ExtractCsvDataResponse)
+def extract_csv_data(filename: str = Form(...), user_id: str = Form(None), username: str = Form(None)):
+    """
+    Extract CSV data from a file uploaded to MinIO and store it in the datasets collection
+    """
+    try:
+        minio_service = get_minio_service()
+
+        # Extract CSV data from the uploaded file
+        csv_data = extract_csv_data_from_minio(minio_service, filename)
+
+        if csv_data is None:
+            raise HTTPException(
+                status_code=400, detail="Failed to extract CSV data")
+
+        # Store the data in the datasets collection
+        from app.utils.csv_processor import store_csv_data_in_mongodb
+        storage_result = store_csv_data_in_mongodb(
+            filename, csv_data, user_id, username)
+
+        return ExtractCsvDataResponse(
+            status="success",
+            message="CSV data extracted and stored successfully",
+            data={
+                "dataset_id": storage_result["dataset_id"],
+                "columns": storage_result["columns"]
+            }
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error extracting CSV data: {str(e)}")
+
+
+@app.get("/csv-preview/{filename}")
+def get_csv_preview(filename: str, limit: int = Query(5, ge=1, le=50)):
+    """
+    Get a preview of CSV data that has been processed and stored
+    """
+    try:
+        from app.utils.csv_processor import get_csv_preview
+        preview_data = get_csv_preview(filename, limit)
+
+        if preview_data is None:
+            raise HTTPException(status_code=404, detail="CSV data not found")
+
+        return {
+            "status": "success",
+            "data": preview_data
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error getting CSV preview: {str(e)}")
 
 # # Test Endpoint that don't run on a thread
 # @app.post("/invoke-function")
