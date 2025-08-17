@@ -84,14 +84,14 @@ class CloudFunctionRequest(BaseModel):
 
 
 class RunPipelineRequest(BaseModel):
-    dataset_id: str
-    user_id: str
+    pipeline_id: str
     username: str
+    user_email: str
 
 
 class PipelineStatusRequest(BaseModel):
-    dataset_id: str
-    user_id: str
+    pipeline_id: str
+    user_email: str
 
 # Response models for pipeline endpoints
 
@@ -118,6 +118,48 @@ class PipelineRunResponse(BaseModel):
     """
     status: str = Field(..., description="The current status of the pipeline", enum=[
                         "running", "completed", "error"])
+
+
+class DatasetInformation(BaseModel):
+    """
+    Complete dataset information object with all fields from datasets-information collection.
+    """
+    id: str = Field(..., description="Dataset information ID (UUID)")
+    dataset_name: str = Field(..., description="Name of the dataset")
+    description: Optional[str] = Field(
+        None, description="Description of the dataset")
+    permission: str = Field(..., description="Permission level of the dataset")
+    dataset_type: str = Field(..., description="Type of the dataset")
+    tags: List[str] = Field(
+        default=[], description="Tags associated with the dataset")
+    dataset_id: str = Field(...,
+                            description="Reference to the actual dataset UUID")
+    file_id: Optional[str] = Field(None, description="File ID if applicable")
+    is_temporal: bool = Field(...,
+                              description="Whether the dataset has temporal data")
+    is_spatial: bool = Field(...,
+                             description="Whether the dataset has spatial data")
+    pulled_from_pipeline: bool = Field(
+        ..., description="Whether the dataset was pulled from a pipeline")
+    user_email: str = Field(...,
+                            description="Email of the user who owns the dataset")
+    user_name: str = Field(...,
+                           description="Name of the user who owns the dataset")
+    user_id: Optional[str] = Field(
+        None, description="User ID (for backward compatibility)")
+    created_at: str = Field(..., description="Creation timestamp")
+    updated_at: str = Field(..., description="Last update timestamp")
+    pipeline_id: str = Field(...,
+                             description="Pipeline ID that created this dataset")
+
+
+class DatasetInformationResponse(BaseModel):
+    """
+    Response wrapper for dataset information.
+    """
+    status: str = Field(..., description="Response status")
+    data: List[DatasetInformation] = Field(...,
+                                           description="List of dataset information")
 
 
 class Dataset(BaseModel):
@@ -149,8 +191,8 @@ class GetDatasetByIdRequest(BaseModel):
     """
     Request model for getting dataset rows with pagination.
     """
-    id: str = Field(..., description="Dataset ID")
-    offset: int = Field(0, description="Number of rows to skip", ge=0)
+    dataset_id: str = Field(..., description="Dataset ID")
+    page_number: int = Field(0, description="Page number (0-based)", ge=0)
     limit: int = Field(
         10, description="Number of rows to return", ge=1, le=1000)
 
@@ -176,12 +218,25 @@ class GetDatasetByIdResponse(BaseModel):
     data: List[dict] = Field(..., description="Array of row objects")
 
 
+class GetDatasetByIdDetailedResponse(BaseModel):
+    """
+    Detailed response model for dataset with complete information and paginated data.
+    """
+    status: str = Field(..., description="Response status")
+    dataset_information: DatasetInformation = Field(
+        ..., description="Complete dataset information")
+    record_count: int = Field(...,
+                              description="Total number of records in the dataset")
+    data: List[dict] = Field(...,
+                             description="Array of row objects for current page")
+
+
 class GetMyDatasetsRequest(BaseModel):
     """
     Request model for manage endpoint to get user's datasets.
     """
-    user_id: str = Field(...,
-                         description="ID of the user whose datasets to retrieve")
+    user_email: str = Field(...,
+                            description="Email of the user whose datasets to retrieve")
 
 
 class ManageDatasetResponse(BaseModel):
@@ -207,3 +262,88 @@ class GetMyDatasetsResponse(BaseModel):
     status: str = Field(..., description="Response status")
     data: List[ManageDatasetResponse] = Field(...,
                                               description="List of datasets")
+
+
+class CreateDatasetInformationRequest(BaseModel):
+    """
+    Request model for creating dataset information.
+    """
+    dataset_name: str = Field(..., description="Name of the dataset")
+    description: Optional[str] = Field(
+        None, description="Description of the dataset")
+    permission: str = Field(..., description="Permission level of the dataset")
+    dataset_type: str = Field(..., description="Type of the dataset")
+    tags: List[str] = Field(
+        default=[], description="Tags associated with the dataset")
+    dataset_id: str = Field(...,
+                            description="Reference to the actual dataset UUID")
+    file_id: str = Field(..., description="File ID")
+    is_temporal: bool = Field(...,
+                              description="Whether the dataset has temporal data")
+    is_spatial: bool = Field(...,
+                             description="Whether the dataset has spatial data")
+    pulled_from_pipeline: bool = Field(
+        default=False, description="Whether the dataset was pulled from a pipeline")
+    user_email: str = Field(...,
+                            description="Email of the user who owns the dataset")
+    user_name: str = Field(...,
+                           description="Name of the user who owns the dataset")
+    user_id: Optional[str] = Field(
+        default=None, description="User ID (for backward compatibility)")
+    pipeline_id: Optional[str] = Field(
+        default=None, description="Pipeline ID that created this dataset")
+
+
+class CreateDatasetInformationResponse(BaseModel):
+    """
+    Response model for creating dataset information.
+    """
+    status: str = Field(..., description="Response status")
+    message: str = Field(..., description="Response message")
+    data: Optional[DatasetInformation] = Field(
+        None, description="Created dataset information")
+
+
+class CreateFileRequest(BaseModel):
+    """
+    Request model for creating file information.
+    """
+    file_ext: str = Field(..., description="File extension")
+    file_name: str = Field(..., description="Name of the file")
+    file_size: int = Field(..., description="Size of the file in bytes")
+    file_type: str = Field(..., description="MIME type of the file")
+    file_url: str = Field(..., description="URL where the file is stored")
+
+
+class FileInformation(BaseModel):
+    """
+    File information object with all fields from files collection.
+    """
+    id: str = Field(..., description="File ID (UUID)")
+    file_ext: str = Field(..., description="File extension")
+    file_name: str = Field(..., description="Name of the file")
+    file_size: int = Field(..., description="Size of the file in bytes")
+    file_type: str = Field(..., description="MIME type of the file")
+    file_url: str = Field(..., description="URL where the file is stored")
+    created_at: str = Field(..., description="Creation timestamp")
+    updated_at: str = Field(..., description="Last update timestamp")
+
+
+class CreateFileResponse(BaseModel):
+    """
+    Response model for creating file information.
+    """
+    status: str = Field(..., description="Response status")
+    message: str = Field(..., description="Response message")
+    data: Optional[FileInformation] = Field(
+        None, description="Created file information")
+
+
+class ExtractCsvDataResponse(BaseModel):
+    """
+    Response model for extract-csv-data endpoint.
+    """
+    status: str = Field(..., description="Response status")
+    message: str = Field(..., description="Response message")
+    data: Optional[dict] = Field(
+        None, description="Extraction result with dataset_id and columns")
