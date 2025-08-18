@@ -33,8 +33,6 @@ def extract_csv_data_from_minio(minio_service: MinioStorageService, filename: st
 
         # Handle infinite and NaN values
         df = df.replace([np.inf, -np.inf], np.nan)
-        # Fill NaN values with None - use a more explicit approach
-        df = df.where(pd.notnull(df), None)
 
         # Clean data for JSON serialization
         records = df.to_dict(orient="records")
