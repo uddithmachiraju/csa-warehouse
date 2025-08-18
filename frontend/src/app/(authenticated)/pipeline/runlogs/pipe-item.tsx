@@ -14,9 +14,9 @@ export function PipelineItem({ datasetId }: { datasetId: string }) {
   const runPipeline = async () => {
     try {
       const runRequest: RunPipelineRequest = {
-        dataset_id: datasetId,
-        user_id: session?.user?.email || '',
-        username: session?.user?.name || ''
+        pipeline_id: datasetId,
+        username: session?.user?.name || '',
+        user_email: session?.user?.email || '',
       }
 
       // Submit the task
@@ -37,8 +37,8 @@ export function PipelineItem({ datasetId }: { datasetId: string }) {
   const checkPipelineStatus = async () => {
     try {
       const requestBody: PipelineStatusRequest = {
-        dataset_id: datasetId,
-        user_id: session?.user?.email || ''
+        pipeline_id: datasetId,
+        user_email: session?.user?.email || '',
       }
       const response = await getPipelineStatusPipelineStatusPost({
         body: requestBody
