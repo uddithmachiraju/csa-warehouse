@@ -149,7 +149,7 @@ class DatasetInformation(BaseModel):
         None, description="User ID (for backward compatibility)")
     created_at: str = Field(..., description="Creation timestamp")
     updated_at: str = Field(..., description="Last update timestamp")
-    pipeline_id: str = Field(...,
+    pipeline_id: Optional[str] = Field(None,
                              description="Pipeline ID that created this dataset")
 
 

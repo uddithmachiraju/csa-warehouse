@@ -34,7 +34,7 @@ async def get_datasets():
             user_id=item.get("user_id"),
             created_at=item.get("created_at", ""),
             updated_at=item.get("updated_at", ""),
-            pipeline_id=item.get("pipeline_id", "")
+            pipeline_id=item.get("pipeline_id")
         )
         transformed_data.append(dataset_info)
 
@@ -68,7 +68,7 @@ async def get_dataset_by_id_endpoint(request: GetDatasetByIdRequest):
         user_id=dataset_info_doc.get("user_id"),
         created_at=dataset_info_doc.get("created_at", ""),
         updated_at=dataset_info_doc.get("updated_at", ""),
-        pipeline_id=dataset_info_doc.get("pipeline_id", "")
+        pipeline_id=dataset_info_doc.get("pipeline_id")
     )
 
     # Get the actual dataset data to get record count

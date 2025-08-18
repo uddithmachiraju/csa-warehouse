@@ -32,7 +32,7 @@ async def get_my_datasets_endpoint(request: GetMyDatasetsRequest):
             user_id=item.get("user_id"),
             created_at=item.get("created_at", ""),
             updated_at=item.get("updated_at", ""),
-            pipeline_id=item.get("pipeline_id", "")
+            pipeline_id=item.get("pipeline_id")
         )
         transformed_data.append(dataset_info)
 
