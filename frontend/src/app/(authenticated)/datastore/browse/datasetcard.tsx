@@ -6,18 +6,22 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 export function DatasetCard({
-  title,
+  dataset_id,
+  dataset_name,
   description,
-  user_id,
+  pulled_from_pipeline,
   username,
-  ingestedAt,
+  useremail,
+  updated_at,
   
 }: {
-  title: string
-  description: string | null | undefined
-  user_id: string
+  dataset_id: string
+  dataset_name: string
+  description: string
+  pulled_from_pipeline: boolean
   username: string
-  ingestedAt: string
+  useremail: string
+  updated_at: string
 }) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
@@ -25,7 +29,7 @@ export function DatasetCard({
   const handleOpen = async () => {
     setIsLoading(true)
     try {
-      await router.push(`/datastore/browse/${encodeURIComponent(title)}`)
+      await router.push(`/datastore/browse/${encodeURIComponent(dataset_id)}`)
     } catch (error) {
       console.error('Navigation error:', error)
       setIsLoading(false)
@@ -36,13 +40,13 @@ export function DatasetCard({
     <Card className="bg-background h-[280px] flex flex-col">
       <CardHeader className="pb-3 flex-shrink-0">
         <CardTitle className="text-lg font-semibold truncate">
-          {title}
+          {dataset_name}
         </CardTitle>
         <CardDescription className="text-sm text-muted-foreground line-clamp-2 min-h-[2.5rem]">
           {description ? description : "No description"}
         </CardDescription>
         <p className="text-sm text-muted-foreground">
-          Pipeline Run on {formatDate(ingestedAt)}
+          {pulled_from_pipeline ? "Pipeline Run on " + formatDate(updated_at) : "Last Updated on " + formatDate(updated_at)}
         </p>
       </CardHeader>
       <CardContent className="pt-0 flex-1 flex flex-col">
@@ -55,7 +59,7 @@ export function DatasetCard({
             </p>
             <p className="text-xs text-muted-foreground flex items-center">
               <Mail className="w-3 h-3 mr-1.5" />
-              {user_id}
+              {useremail}
             </p>
           </div>
         </div>
