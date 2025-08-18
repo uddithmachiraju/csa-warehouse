@@ -5,12 +5,12 @@ import { DatasetCard } from './datasetcard'
 import { ContentLayout } from '@/components/admin-panel/content-layout'
 import { useState, useEffect } from 'react'
 import { getMyDatasetsEndpointGetMyDatasetsPost } from '@/lib/hey-api/client/sdk.gen'
-import { GetMyDatasetsResponse, GetMyDatasetsRequest, ManageDatasetResponse } from '@/lib/hey-api/client/types.gen'
+import { GetMyDatasetsRequest, DatasetInformationResponse, DatasetInformation } from '@/lib/hey-api/client/types.gen'
 import { useSession } from 'next-auth/react'
 
 export default function Manage() {
   const { data: session } = useSession()
-  const [datasets, setDatasets] = useState<ManageDatasetResponse[]>([])
+  const [datasets, setDatasets] = useState<DatasetInformation[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -20,13 +20,13 @@ export default function Manage() {
         setLoading(true)
         setError(null)
         const request: GetMyDatasetsRequest = {
-          user_id: session?.user?.email || ''
+          user_email: session?.user?.email || ''
         }
         const response = await getMyDatasetsEndpointGetMyDatasetsPost({
           body: request
         })
         if (response.data) {
-          const responseData: GetMyDatasetsResponse = response.data
+          const responseData: DatasetInformationResponse = response.data
           setDatasets(responseData.data)
         } else {
           throw new Error('Failed to fetch datasets')
@@ -61,12 +61,14 @@ export default function Manage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
           {datasets.map((dataset) => (
             <DatasetCard
-              key={dataset.id}
-              title={dataset.datasetname}
-              description={dataset.description}
-              user_id={dataset.user_id}
+              key={dataset.dataset_id}
+              dataset_id={dataset.dataset_id}
+              dataset_name={dataset.dataset_name}
+              description={dataset.description || 'No description'}
+              useremail={dataset.user_email}
               username={dataset.user_name}
-              ingestedAt={dataset.ingested_date}
+              updated_at={dataset.updated_at}
+              pulled_from_pipeline={dataset.pulled_from_pipeline}
             />
           ))}
         </div>
