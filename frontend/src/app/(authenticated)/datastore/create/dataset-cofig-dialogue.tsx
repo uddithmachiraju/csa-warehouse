@@ -48,6 +48,7 @@ interface DatasetConfigDialogProps {
   onOpenChange: (open: boolean) => void
   onComplete: (data: DatasetConfigFormData) => void
   onSubmitForm?: (configData: DatasetConfigFormData) => void
+  isSubmitting?: boolean
 }
 
 // --- Progress Step Component ---
@@ -109,6 +110,7 @@ export function DatasetConfigurationDialog({
   onOpenChange,
   onComplete,
   onSubmitForm,
+  isSubmitting = false,
 }: DatasetConfigDialogProps) {
   const [currentStep, setCurrentStep] = useState(0)
 
@@ -433,6 +435,7 @@ export function DatasetConfigurationDialog({
                   variant="outline" 
                   type="button" 
                   onClick={handleBack}
+                  disabled={isSubmitting}
                   className="bg-background text-foreground border-border hover:bg-muted"
                 >
                   Back
@@ -445,6 +448,7 @@ export function DatasetConfigurationDialog({
                     e.preventDefault();
                     handleNext();
                   }}
+                  disabled={isSubmitting}
                   className="bg-primary text-primary-foreground hover:bg-primary/90"
                 >
                   Continue
@@ -452,9 +456,10 @@ export function DatasetConfigurationDialog({
               ) : (
                 <Button 
                   type="submit"
+                  disabled={isSubmitting}
                   className="bg-primary text-primary-foreground hover:bg-primary/90"
                 >
-                  Save and Upload
+                  {isSubmitting ? "Creating Dataset..." : "Save and Upload"}
                 </Button>
               )}
             </div>
