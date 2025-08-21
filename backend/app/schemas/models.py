@@ -90,8 +90,8 @@ class RunPipelineRequest(BaseModel):
 
 
 class PipelineStatusRequest(BaseModel):
-    pipeline_id: str
-    user_email: str
+    dataset_id: str
+    exec_id: str
 
 # Response models for pipeline endpoints
 
@@ -101,16 +101,21 @@ class RunPipelineResponse(BaseModel):
     Response model for /run-pipeline endpoint
     """
     status: str = Field(..., description="The current status of the pipeline", enum=[
-                        "running", "completed", "error"])
+                        "running", "success", "failed"])
+    executed_at: str = Field(None, description="Timestamp when the pipeline was executed", example="2025-06-30T08:30:00Z")
+    user: str = Field(..., description="Username of the user who executed the pipeline", example="john_doe")
 
+class HistoryItem(BaseModel):
+    exec_id: str
+    status: str
+    executed_at: str
+    user: str 
 
 class PipelineStatusResponse(BaseModel):
     """
     Response model for /pipeline-status endpoint
     """
-    status: str = Field(..., description="The current status of the pipeline", enum=[
-                        "running", "completed", "error"])
-
+    history: List[HistoryItem]
 
 class PipelineRunResponse(BaseModel):
     """
@@ -347,3 +352,17 @@ class ExtractCsvDataResponse(BaseModel):
     message: str = Field(..., description="Response message")
     data: Optional[dict] = Field(
         None, description="Extraction result with dataset_id and columns")
+
+class RequestGetPipelines(BaseModel):
+    """
+    Request model for getting pipelines.
+    """
+    pipeline: Optional[str] = Field(None, description = "Pipeline name to filter by", example = "Soil Collection Data")
+    date: Optional[str] = Field(None, description = "Date to filter by", example = "2025-06-30")
+
+class ResponseGetPipelines(BaseModel):
+    """
+    Response model for getting pipelines.
+    """
+    data: List[dict] = Field(..., description = "List of pipelines with their details")
+

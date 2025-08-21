@@ -1,6 +1,8 @@
 from fastapi import APIRouter
+from datetime import datetime 
 from app.utils.erp import pull_dataset
-from app.schemas.models import PipelineStatusRequest, RunPipelineRequest, PipelineStatusResponse, RunPipelineResponse
+from app.db.database import pipelines_collection
+from app.schemas.models import PipelineStatusRequest, RunPipelineRequest, PipelineStatusResponse, RunPipelineResponse, RequestGetPipelines, ResponseGetPipelines
 from app.services.storage.mongodb_service import store_to_mongodb
 from app.services.tasks.task_executor import submit_task, get_task_status
 
@@ -28,14 +30,48 @@ def run_pipeline(request: RunPipelineRequest):
 
     return RunPipelineResponse(status=status)
 
-
-@run_router.post("/pipeline-status", response_model=PipelineStatusResponse)
+@run_router.post("/pipeline-status", response_model = PipelineStatusResponse)
 def get_pipeline_status(request: PipelineStatusRequest):
-    result = get_task_status(request.pipeline_id, request.user_email)
-    task_status = result.get("Task Status", "not found")
+    pipeline = pipelines_collection.find_one({"_id": request.dataset_id})
+    if not pipeline: 
+        return PipelineStatusResponse(history = [])
 
-    # Map "not found" to "error" for frontend compatibility
-    if task_status == "not found":
-        task_status = "error"
+    history = pipeline.get("history", [])
+    if not history:
+        return PipelineStatusResponse(history = [])
 
-    return PipelineStatusResponse(status=task_status)
+    matching = [h for h in history if h["exec_id"] == request.exec_id]
+
+    return PipelineStatusResponse(history = matching) 
+
+@run_router.get("/pipeline", response_model = ResponseGetPipelines) 
+def get_pipeline():
+    pipelines = pipelines_collection.find({}) 
+
+    return ResponseGetPipelines(data = list(pipelines))  
+     
+@run_router.post("/filter-pipelines", response_model = ResponseGetPipelines)
+def filter_pipelines(request: RequestGetPipelines):
+    match_stage = {}
+    if request.pipeline:
+        match_stage["pipeline_name"] = {"$regex": request.pipeline, "$options": "i"}
+
+    pipeline = [
+        {"$match": match_stage},
+    ]
+
+    if request.date:
+        pipeline.append(
+            {"$addFields": {
+                "history": {
+                    "$filter": {
+                        "input": "$history",
+                        "as": "h",
+                        "cond": {"$gte": ["$$h.executed_at", request.date]}
+                    }
+                }
+            }}
+        )
+
+    results = list(pipelines_collection.aggregate(pipeline))
+    return ResponseGetPipelines(data=results)
