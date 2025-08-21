@@ -17,3 +17,5 @@ datasets_collection = db["datasets"]
 
 # New collection for pipeline status
 pipeline_status = db["pipelineStatus"] 
+
+collection = db["data"] 

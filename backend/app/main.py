@@ -1,6 +1,7 @@
 from uuid import UUID
 from io import BytesIO
 from base64 import b64decode
+from fastapi.middleware.cors import CORSMiddleware 
 from fastapi import FastAPI, HTTPException, Query, UploadFile, File, Form
 from app.schemas.models import User, Dataset, ApiResponse # CloudFunctionRequest, DatasetResponse
 from app.db.crud import (
@@ -11,21 +12,31 @@ from app.utils.file_utils import *
 from app.services.storage.minio_service import get_minio_service
 # from services.cloud_functions.server import introspection, custprocess
 # from services.cloud_functions.executor import submit_task, get_task_status
-from app.warehouse.task_manager import TaskManager 
+# from app.warehouse.task_manager import TaskManager 
 # from app.services.cloud_functions.ETL_function import clean_csv 
 # from app.services.storage.minio_service import MinioStorageService
 from app.api.endpoints.pipeline import run_router
 from app.api.endpoints.browse import browser_router
+from app.api.endpoints.datasets import datasets_router 
 
 # Register the tasks 
-import app.warehouse.register_tasks 
+# import app.warehouse.register_tasks 
 
 app = FastAPI()
 app.include_router(run_router) 
 app.include_router(browser_router) 
+app.include_router(datasets_router) 
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins = ["*"],
+    allow_credentials = True,
+    allow_methods = ["*"],
+    allow_headers = ["*"],
+)
 
 # Initialize the Task Manager
-task_manager = TaskManager()
+# task_manager = TaskManager()
 
 # User Routes
 
@@ -63,12 +74,12 @@ def create_dataset_endpoint(dataset: Dataset):
     create_dataset(dataset)
     return ApiResponse(code=201, type="success", message="Dataset created")
 
-@app.get("/datasets/{dataset_id}")
-def get_dataset_endpoint(dataset_id: int):
-    ds = get_dataset(dataset_id)
-    if not ds:
-        raise HTTPException(status_code=404, detail="Dataset not found")
-    return ds
+# @app.get("/datasets/{dataset_id}")
+# def get_dataset_endpoint(dataset_id: int):
+#     ds = get_dataset(dataset_id)
+#     if not ds:
+#         raise HTTPException(status_code=404, detail="Dataset not found")
+#     return ds
 
 @app.delete("/datasets/{dataset_id}", response_model=ApiResponse)
 def delete_dataset_endpoint(dataset_id: int):

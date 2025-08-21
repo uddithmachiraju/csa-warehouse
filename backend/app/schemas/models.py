@@ -43,7 +43,7 @@ class Dataset(BaseModel):
     tags: Optional[List[Tag]] = Field(None, description="List of tags associated with the dataset")
     isSpatial: bool = Field(..., description="Whether the dataset has any geospatial identifiers")
     isTemporal: bool = Field(..., description="Whether the dataset has any temporal identifiers")
-
+    permissions: Optional[str] = Field("public", description="Permissions for the dataset", example="public")
 
 class DatasetResponse(Dataset):
     document_id: str
@@ -79,3 +79,23 @@ class RunPipeline(BaseModel):
 class PipelineStatus(BaseModel):
     dataset_id: str 
     user_id: str 
+
+class Browse(BaseModel):
+    dataset_id: Optional[str] = Field(None, description="ID of the dataset to fetch", example="123e4567-e89b-12d3-a456-426614174000")
+    offset: Optional[int] = Field(0, description="Offset for pagination", example=0)
+    limit: Optional[int] = Field(10, description="Number of items per page", example=10)
+
+class BrowseDatasets(BaseModel):
+    dataset_id: str
+    offset: int = Field(0, description="Offset for pagination", example=0)
+    limit: int = Field(10, description="Number of items per page", example=9) 
+
+class PresignedURLRequest(BaseModel):
+    filename: str = Field(..., description="Name of the file to generate a presigned URL for", example="data.csv")
+    user_id: Optional[str] = Field(None, description="ID of the user requesting the presigned URL", example="123e4567-e89b-12d3-a456-426614174000")
+
+class CreateDatasetRequest(BaseModel):
+    file_path: str
+    dataset_name: str
+    user_id: str
+    username: str
