@@ -18,6 +18,8 @@ import { Input } from '@/components/ui/input'
 import { useState } from 'react'
 import { Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import TimeColumnsMultiSelect from '@/app/(authenticated)/datastore/create/time-columns-multiselect'
+import LocationColumnsMultiSelect from '@/app/(authenticated)/datastore/create/location-columns-multiselect'
 
 // --- Zod Schema ---
 const datasetConfigSchema = z.object({
@@ -25,6 +27,8 @@ const datasetConfigSchema = z.object({
   isTemporal: z.boolean(),
   hasLatitude: z.boolean(),
   hasLongitude: z.boolean(),
+  timeColumns: z.array(z.string()).optional(),
+  locationColumns: z.array(z.string()).optional(),
   district: z.string().optional(),
   mandal: z.string().optional(),
   wardNo: z.string().optional(),
@@ -38,6 +42,8 @@ export interface DatasetConfigFormData {
   isTemporal: boolean
   hasLatitude: boolean
   hasLongitude: boolean
+  timeColumns?: string[]
+  locationColumns?: string[]
   district?: string
   mandal?: string
   wardNo?: string
@@ -49,6 +55,7 @@ interface DatasetConfigDialogProps {
   onComplete: (data: DatasetConfigFormData) => void
   onSubmitForm?: (configData: DatasetConfigFormData) => void
   isSubmitting?: boolean
+  columns?: string[]
 }
 
 // --- Progress Step Component ---
@@ -111,6 +118,7 @@ export function DatasetConfigurationDialog({
   onComplete,
   onSubmitForm,
   isSubmitting = false,
+  columns = [],
 }: DatasetConfigDialogProps) {
   const [currentStep, setCurrentStep] = useState(0)
 
@@ -122,6 +130,8 @@ export function DatasetConfigurationDialog({
       isTemporal: false,
       hasLatitude: false,
       hasLongitude: false,
+      timeColumns: [],
+      locationColumns: [],
       district: '',
       mandal: '',
       wardNo: '',
@@ -220,88 +230,22 @@ export function DatasetConfigurationDialog({
       case 1:
         return (
           <div className="space-y-3">
-            <div className="border border-border rounded-lg p-2">
-              <FormField
-                control={form.control}
-                name="isTemporal"
-                render={({ field }) => (
-                  <FormItem className="flex items-center space-x-2">
-                    <FormControl>
-                      <Checkbox
-                        id="isTemporal"
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormLabel htmlFor="isTemporal" className="text-sm font-medium">
-                      Time
-                    </FormLabel>
-                    <FormMessage />
-                  </FormItem>
-                )}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Select Time Columns</label>
+              <TimeColumnsMultiSelect
+                columns={columns}
+                value={form.watch('timeColumns') || []}
+                onChange={(value) => form.setValue('timeColumns', value)}
+                disabled={!form.watch('isTemporal')}
               />
             </div>
-            <div className="border border-border rounded-lg p-2">
-              <FormField
-                control={form.control}
-                name="isSpatial"
-                render={({ field }) => (
-                  <FormItem className="flex items-center space-x-2">
-                    <FormControl>
-                      <Checkbox
-                        id="isSpatial"
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormLabel htmlFor="isSpatial" className="text-sm font-medium">
-                      Location
-                    </FormLabel>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <div className="border border-border rounded-lg p-2">
-              <FormField
-                control={form.control}
-                name="hasLatitude"
-                render={({ field }) => (
-                  <FormItem className="flex items-center space-x-2">
-                    <FormControl>
-                      <Checkbox
-                        id="hasLatitude"
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormLabel htmlFor="hasLatitude" className="text-sm font-medium">
-                      Latitude
-                    </FormLabel>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <div className="border border-border rounded-lg p-2">
-              <FormField
-                control={form.control}
-                name="hasLongitude"
-                render={({ field }) => (
-                  <FormItem className="flex items-center space-x-2">
-                    <FormControl>
-                      <Checkbox
-                        id="hasLongitude"
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormLabel htmlFor="hasLongitude" className="text-sm font-medium">
-                      Longitude
-                    </FormLabel>
-                    <FormMessage />
-                  </FormItem>
-                )}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Select Location Columns</label>
+              <LocationColumnsMultiSelect
+                columns={columns}
+                value={form.watch('locationColumns') || []}
+                onChange={(value) => form.setValue('locationColumns', value)}
+                disabled={!form.watch('isSpatial')}
               />
             </div>
           </div>

@@ -417,6 +417,7 @@ export default function Create() {
           onComplete={handleConfigComplete}
           onSubmitForm={handleSubmitForm}
           isSubmitting={isSubmitting}
+          columns={uploadedFileData?.columns || []}
         />
     </ContentLayout>
   )
