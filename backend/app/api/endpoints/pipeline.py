@@ -8,7 +8,6 @@ from app.services.tasks.task_executor import submit_task, get_task_status
 
 run_router = APIRouter()
 
-
 @run_router.post("/run", response_model=RunPipelineResponse)
 async def run_pipeline(request: RunPipelineRequest):
     dataset = pull_dataset(request.pipeline_id)
@@ -17,18 +16,20 @@ async def run_pipeline(request: RunPipelineRequest):
         request.pipeline_id, request.username, request.user_email, dataset_json)
     return RunPipelineResponse(status="completed")
 
-
 @run_router.post("/run-pipeline", response_model=RunPipelineResponse)
 def run_pipeline(request: RunPipelineRequest):
-    result, exec_id = submit_task(
-        request.pipeline_id, request.username, request.user_email)
+    result, exec_id = submit_task(request.pipeline_id, request.pipeline_name, request.username, request.user_email)
+    print(result)  
 
     # Map "not found" to "error" for frontend compatibility
-    status = result.get("Task Status", "running")
+    status = result.get("status", "running")
+    executed_at = result.get("executed_at") 
+    user = result.get("user")  
+    
     if status == "not found":
         status = "error"
 
-    return RunPipelineResponse(status=status)
+    return RunPipelineResponse(status = status, executed_at = executed_at, user = user) 
 
 @run_router.post("/pipeline-status", response_model = PipelineStatusResponse)
 def get_pipeline_status(request: PipelineStatusRequest):

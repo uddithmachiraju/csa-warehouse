@@ -1,9 +1,9 @@
 from typing import List, Optional, Union, Any
 from uuid import UUID
+from enum import Enum 
 from datetime import datetime
 
 from pydantic import BaseModel, Field
-
 
 class Tag(BaseModel):
     """
@@ -14,7 +14,19 @@ class Tag(BaseModel):
     id: int = Field(..., description="Unique identifier of the tag", example=123)
     name: str = Field(..., description="Name of the tag")
 
+class Browse(BaseModel):
+    _id: str
+    dataset_id: str
+    dataset_name: str
+    user_id: List[str]
+    username: List[str]
+    description: str
+    created_at: datetime
+    updated_at: datetime
 
+class BrowseResponse(BaseModel):
+    data: List[Browse]
+    
 class User(BaseModel):
     """
     User object.
@@ -85,6 +97,7 @@ class CloudFunctionRequest(BaseModel):
 
 class RunPipelineRequest(BaseModel):
     pipeline_id: str
+    pipeline_name: str 
     username: str
     user_email: str
 
@@ -100,10 +113,9 @@ class RunPipelineResponse(BaseModel):
     """
     Response model for /run-pipeline endpoint
     """
-    status: str = Field(..., description="The current status of the pipeline", enum=[
-                        "running", "success", "failed"])
-    executed_at: str = Field(None, description="Timestamp when the pipeline was executed", example="2025-06-30T08:30:00Z")
-    user: str = Field(..., description="Username of the user who executed the pipeline", example="john_doe")
+    status: str = Field(..., description="The current status of the pipeline", enum=["running", "success", "failed"])
+    executed_at: str
+    user: str = Field(None, description="Username of the user who executed the pipeline", example="john_doe")
 
 class HistoryItem(BaseModel):
     exec_id: str
@@ -121,9 +133,19 @@ class PipelineRunResponse(BaseModel):
     """
     Response model for /run endpoint
     """
-    status: str = Field(..., description="The current status of the pipeline", enum=[
-                        "running", "completed", "error"])
+    status: str = Field(..., description="The current status of the pipeline", enum=["running", "completed", "error"])
 
+class TemporalGranularity(str, Enum):
+	YEAR = "year"
+	MONTH = "month"
+	DAY = "day"
+	
+class SpatialGranularity(str, Enum):
+	COUNTRY = "country"
+	STATE = "state"
+	DISTRICT = "district"
+	VILLAGE = "village"
+	LAT_LONG = "lat_long"
 
 class DatasetInformation(BaseModel):
     """
@@ -156,7 +178,8 @@ class DatasetInformation(BaseModel):
     updated_at: str = Field(..., description="Last update timestamp")
     pipeline_id: Optional[str] = Field(None,
                              description="Pipeline ID that created this dataset")
-
+    temporalGranularity: Optional[TemporalGranularity] = Field(None, description="Granularity of time data")
+    spatialGranularity: Optional[SpatialGranularity] = Field(None, description="Granularity of spatial data")
 
 class DatasetInformationResponse(BaseModel):
     """
@@ -270,34 +293,20 @@ class GetMyDatasetsResponse(BaseModel):
 
 
 class CreateDatasetInformationRequest(BaseModel):
-    """
-    Request model for creating dataset information.
-    """
-    dataset_name: str = Field(..., description="Name of the dataset")
-    description: Optional[str] = Field(
-        None, description="Description of the dataset")
-    permission: str = Field(..., description="Permission level of the dataset")
-    dataset_type: str = Field(..., description="Type of the dataset")
-    tags: List[str] = Field(
-        default=[], description="Tags associated with the dataset")
-    dataset_id: str = Field(...,
-                            description="Reference to the actual dataset UUID")
-    file_id: str = Field(..., description="File ID")
-    is_temporal: bool = Field(...,
-                              description="Whether the dataset has temporal data")
-    is_spatial: bool = Field(...,
-                             description="Whether the dataset has spatial data")
-    pulled_from_pipeline: bool = Field(
-        default=False, description="Whether the dataset was pulled from a pipeline")
-    user_email: str = Field(...,
-                            description="Email of the user who owns the dataset")
-    user_name: str = Field(...,
-                           description="Name of the user who owns the dataset")
-    user_id: Optional[str] = Field(
-        default=None, description="User ID (for backward compatibility)")
-    pipeline_id: Optional[str] = Field(
-        default=None, description="Pipeline ID that created this dataset")
-
+    dataset_name: str
+    description: str
+    permission: str
+    dataset_type: str
+    tags: List[str]
+    file_id: Optional[str] = None
+    is_temporal: bool
+    is_spatial: bool
+    pulled_from_pipeline: bool
+    user_email: str
+    user_name: str
+    user_id: str
+    pipeline_id: Optional[str] = None
+    dataset_id: Optional[str] = None
 
 class CreateDatasetInformationResponse(BaseModel):
     """
@@ -365,4 +374,3 @@ class ResponseGetPipelines(BaseModel):
     Response model for getting pipelines.
     """
     data: List[dict] = Field(..., description = "List of pipelines with their details")
-
