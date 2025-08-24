@@ -42,7 +42,8 @@ def store_to_mongodb(dataset_id: str, dataset_name: str, user_id: str, username:
             "updated": True,
             "dataset_id": dataset_id,
             "dataset_name": dataset_name,
-            "record_count": len(dataset_df)
+            "record_count": len(dataset_df),
+            "created_at": existing_doc["created_at"] 
         }
 
     else:
@@ -65,7 +66,7 @@ def store_to_mongodb(dataset_id: str, dataset_name: str, user_id: str, username:
             "dataset_type": "",
             "is_spatial": False,
             "is_temporal": False,
-            "pulled_from_pipeline": True,
+            "pulled_from_pipeline": False,
             "data": dataset_df,
         }
 
@@ -77,7 +78,8 @@ def store_to_mongodb(dataset_id: str, dataset_name: str, user_id: str, username:
             "inserted_at": current_time,
             "dataset_id": dataset_id,
             "dataset_name": dataset_name,
-            "record_count": len(dataset_df)
+            "record_count": len(dataset_df),
+            "created_at": wrapper_doc["created_at"] 
         }
 
 def sanitize_document(doc):
